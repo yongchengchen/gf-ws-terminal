@@ -1,7 +1,10 @@
 package response
 
 import (
+	"time"
+
 	"github.com/gogf/gf/v2/net/ghttp"
+	"github.com/gorilla/websocket"
 )
 
 // 数据返回通用JSON数据结构
@@ -28,4 +31,13 @@ func Json(r *ghttp.Request, code int, message string, data ...interface{}) {
 func JsonExit(r *ghttp.Request, err int, msg string, data ...interface{}) {
 	Json(r, err, msg, data...)
 	r.Exit()
+}
+
+func WsHandleError(ws *websocket.Conn, err error) bool {
+	if err != nil {
+		dt := time.Now().Add(time.Second)
+		ws.WriteControl(websocket.CloseMessage, []byte(err.Error()), dt)
+		return true
+	}
+	return false
 }
