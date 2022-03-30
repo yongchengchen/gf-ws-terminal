@@ -10,12 +10,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gctx"
 	"github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
 	"github.com/yongchengchen/gf-ws-terminal/app/model"
 	"golang.org/x/crypto/ssh"
 )
 
-func NewSshClient(h *model.SshServerConfig) (*ssh.Client, error) {
+func NewSshClient(h *model.SshMachine) (*ssh.Client, error) {
 	config := &ssh.ClientConfig{
 		Timeout:         time.Second * 5,
 		User:            h.User,
@@ -72,23 +75,29 @@ func hostKeyCallBackFunc(host string) ssh.HostKeyCallback {
 }
 
 func publicKeyAuthFunc(kPath string, phraseKey string) ssh.AuthMethod {
-	// var kPath1 string = "/Users/chen/workplace/aws/.configs/aws_test_account.pem"
-	var kPath1 string = "/Users/chen/workplace/aws/.configs/aws_ec2_live_private.pem"
+	cx := gctx.New()
+	path, err := g.Cfg().Get(cx, "pempath", "./")
+	if err != nil {
+		logrus.Println("find key's home dir failed", err)
+		return nil
+	}
+	kPath1 := path.String() + kPath
+
 	keyPath, err := homedir.Expand(kPath1)
 	if err != nil {
-		log.Println("find key's home dir failed", err)
+		logrus.Println("find key's home dir failed", err)
 		return nil
 	}
 
 	key, err := ioutil.ReadFile(kPath1)
 	if err != nil {
-		log.Println("ssh key file read failed", keyPath)
+		logrus.Println("ssh key file read failed", keyPath)
 		return nil
 	}
 	// CreateUserOfRole the Signer for this private key.
 	signer, err := sshParsePrivateKey(key, phraseKey)
 	if err != nil {
-		log.Println("ssh key signer failed ", err)
+		logrus.Println("ssh key signer failed ", err)
 		return nil
 	}
 	return ssh.PublicKeys(signer)

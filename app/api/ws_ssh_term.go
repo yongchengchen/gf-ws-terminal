@@ -28,15 +28,14 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
-func getSshServerConfig(id int) *model.SshServerConfig {
+func getSshMachine(id int) *model.SshMachine {
 	var (
-		serverConfig *model.SshServerConfig
+		serverConfig *model.SshMachine
 	)
 	err := g.DB("sqlite").Model("machines").Where("id", id).Scan(&serverConfig)
 	if err != nil {
 		return nil
 	}
-	logrus.Println(serverConfig)
 	return serverConfig
 }
 
@@ -55,8 +54,7 @@ func WsSsh(r *ghttp.Request) {
 		response.JsonExit(r, 404, err.Error())
 	}
 
-	config := getSshServerConfig(cid)
-	logrus.Println(config)
+	config := getSshMachine(cid)
 
 	wsConn, err := upGrader.Upgrade(r.Response.Writer, r.Request, nil)
 	if err != nil {

@@ -2,7 +2,7 @@ package model
 
 import "time"
 
-type SshServerConfig struct {
+type SshMachine struct {
 	Id        uint      `gorm:"primary_key" json:"id" form:"id"`
 	Name      string    `json:"name" gorm:"type:varchar(50);unique_index"`
 	Host      string    `json:"host" gorm:"type:varchar(50)"`
