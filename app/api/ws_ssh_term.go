@@ -1,7 +1,6 @@
 package api
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 
@@ -88,7 +87,7 @@ func WsSsh(r *ghttp.Request) {
 
 	<-quitChan
 
-	log.Println(config)
+	logrus.Println(config.Name, "quitChan Exit")
 	// //保存日志
 
 	// //write logs
@@ -100,9 +99,9 @@ func WsSsh(r *ghttp.Request) {
 	// 	ClientIp:  cIp,
 	// }
 	// err = xtermLog.Create()
-	// if response.WsHandleError(wsConn, err) {
-	// 	return
-	// }
+	if response.WsHandleError(wsConn, err) {
+		return
+	}
 }
 
 func wsAuth(token string) (int, error) {
