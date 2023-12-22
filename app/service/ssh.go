@@ -20,10 +20,10 @@ import (
 
 func NewSshClient(h *model.SshMachine) (*ssh.Client, error) {
 	config := &ssh.ClientConfig{
-		Timeout:         time.Second * 5,
-		User:            h.User,
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //不够安全
-		//HostKeyCallback: hostKeyCallBackFunc(h.Host),
+		Timeout: time.Second * 5,
+		User:    h.User,
+		// HostKeyCallback: ssh.InsecureIgnoreHostKey(), //不够安全
+		HostKeyCallback: hostKeyCallBackFunc(h.Host),
 	}
 	if h.Type == "password" {
 		config.Auth = []ssh.AuthMethod{ssh.Password(h.Password)}
@@ -58,7 +58,7 @@ func hostKeyCallBackFunc(host string) ssh.HostKeyCallback {
 		if len(fields) != 3 {
 			continue
 		}
-		if strings.Contains(fields[0], host) {
+		if strings.Contains(fields[0], host) && strings.Contains(fields[1], "ecdsa-sha2-nistp256") {
 			var err error
 			hostKey, _, _, _, err = ssh.ParseAuthorizedKey(scanner.Bytes())
 			if err != nil {
@@ -68,9 +68,12 @@ func hostKeyCallBackFunc(host string) ssh.HostKeyCallback {
 		}
 	}
 	if hostKey == nil {
+		fmt.Printf("no hostkey for %s,%v", host, err)
 		log.Printf("no hostkey for %s,%v", host, err)
-		return nil
+		// return nil
+		return ssh.InsecureIgnoreHostKey()
 	}
+	fmt.Printf("has hostkey for %s", host)
 	return ssh.FixedHostKey(hostKey)
 }
 

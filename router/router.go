@@ -5,7 +5,6 @@ import (
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/yongchengchen/gf-ws-terminal/app/api"
 )
 
@@ -27,14 +26,15 @@ func init() {
 
 	s.BindHandler("/ws/:token", api.WsSsh)
 
-	path := gfile.MainPkgPath() + "/dist"
+	// path := gfile.MainPkgPath() + "/dist"
+	path := "./dist"
 
 	s.BindStatusHandler(404, func(r *ghttp.Request) {
 		// r.Response.w
 		file := path + "/index.html"
 		c, err := ioutil.ReadFile(file)
 		if err != nil {
-			r.Response.WriteStatus(404, "Not Found")
+			r.Response.WriteStatus(404, file+"Not Found")
 		}
 		r.Response.WriteStatus(200, c)
 	})

@@ -63,6 +63,7 @@ func WsSsh(r *ghttp.Request) {
 	defer wsConn.Close()
 	client, err := service.NewSshClient(config)
 	if response.WsHandleError(wsConn, err) {
+		logrus.Printf("NewSshClient err: %+v\n", err)
 		return
 	}
 
